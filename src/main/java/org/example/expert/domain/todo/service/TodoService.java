@@ -19,33 +19,35 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional(readOnly = true) // 읽기 전용 트랜잭션
 public class TodoService {
 
     private final TodoRepository todoRepository;
     private final WeatherClient weatherClient;
 
+    @Transactional // 쓰기 메서드는 별도로 선언해서 readOnly 해제
     public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
         User user = User.fromAuthUser(authUser);
-
         String weather = weatherClient.getTodayWeather();
 
         Todo newTodo = new Todo(
-                todoSaveRequest.getTitle(),
-                todoSaveRequest.getContents(),
-                weather,
-                user
+            todoSaveRequest.getTitle(),
+            todoSaveRequest.getContents(),
+            weather,
+            user
         );
+
         Todo savedTodo = todoRepository.save(newTodo);
 
         return new TodoSaveResponse(
-                savedTodo.getId(),
-                savedTodo.getTitle(),
-                savedTodo.getContents(),
-                weather,
-                new UserResponse(user.getId(), user.getEmail())
+            savedTodo.getId(),
+            savedTodo.getTitle(),
+            savedTodo.getContents(),
+            weather,
+            new UserResponse(user.getId(), user.getEmail())
         );
     }
+
 
     public Page<TodoResponse> getTodos(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
