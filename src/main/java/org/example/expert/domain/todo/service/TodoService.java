@@ -17,6 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true) // 읽기 전용 트랜잭션
@@ -80,5 +83,23 @@ public class TodoService {
                 todo.getCreatedAt(),
                 todo.getModifiedAt()
         );
+    }
+
+    /**
+     * weather, 수정일 기간 조건을 이용하여 할 일 목록을 검색
+     *
+     * @param weather   검색할 날씨 조건 (nullable)
+     * @param startDate 수정일 시작 범위 (nullable)
+     * @param endDate   수정일 종료 범위 (nullable)
+     * @param pageable 페이징 정보
+     * @return 조건에 맞는 할 일 목록 페이지
+     */
+    public Page<Todo> searchTodos(
+        String weather,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        Pageable pageable
+    ) {
+        return todoRepository.searchByConditions(weather, startDate, endDate, pageable);
     }
 }
